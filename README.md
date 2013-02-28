@@ -22,7 +22,17 @@ Once compiled, the resulting s3 binary must be placed in /usr/lib/apt/methods/ a
 
 Finally, this is how you add it to the /etc/apt/sources.list file if you want your credentials in the url:
 
-    deb s3://AWS_ACCESS_ID:[AWS_SECRET_KEY_IN_BRACKETS]@s3-ENDPOINT.amazonaws.com/BUCKETNAME prod main
+    deb s3://AWS_ACCESS_ID:[AWS_SECRET_KEY_IN_BRACKETS]@BUCKETNAME.s3.amazonaws.com/<FOLDER> prod main
+
+Note this has been updated from the original sources, Authorization header
+requires bucket name in URL but the actual request does not.  Also, this change
+sets the Host: header properly:
+
+    Host: BUCKETNAME.s3.amazonaws.com
+
+    vs
+
+    Host: s3.amazonaws.com
 
 otherwise leave off the credentials and it will draw them from the environment variables `AWS_ACCESS_KEY_ID` and `AWS_SECRET_KEY_ID`.
 

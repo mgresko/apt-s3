@@ -682,7 +682,12 @@ void HttpMethod::SendReq(FetchItem *Itm,CircleBuf &Out)
    // Just in case.
    if (Itm->Uri.length() >= sizeof(Buf))
        abort();
-       
+
+   // Grab the bucket so we can creat the Authorization: header correctly
+   // Don't have buckets with '.' in name
+   unsigned pos = ProperHost.find(".");
+   string Bucket = ProperHost.substr(0, pos);
+
    // Stupid workaround for https://forums.aws.amazon.com/thread.jspa?threadID=55746
    // tl;dr s3 does not play nice with filenames that have a + sign in them
    string normalized_path = QuoteString(Uri.Path, "~");
@@ -797,7 +802,7 @@ void HttpMethod::SendReq(FetchItem *Itm,CircleBuf &Out)
    }
 
    char headertext[SLEN], signature[SLEN];
-   sprintf(headertext,"GET\n\n\n%s\n%s", dateString.c_str(), normalized_path.c_str());
+   sprintf(headertext,"GET\n\n\n%s\n/%s%s", dateString.c_str(), Bucket.c_str(), normalized_path.c_str());
    doEncrypt(headertext, signature, extractedPassword.c_str());
 
    string signatureString(signature);
